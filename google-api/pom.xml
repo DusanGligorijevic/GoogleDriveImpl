@@ -16,6 +16,11 @@
 			<version>1.23.0</version>
 		</dependency>
 		<dependency>
+  			<groupId>com.raf</groupId>
+  			<artifactId>Storage</artifactId>
+  			<version>0.0.1-SNAPSHOT</version>
+  		</dependency>
+		<dependency>
 			<groupId>com.google.oauth-client</groupId>
 			<artifactId>google-oauth-client-jetty</artifactId>
 			<version>1.23.0</version>

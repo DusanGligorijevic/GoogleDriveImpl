@@ -1,3 +1,4 @@
+package googledriveapi;
 import java.io.IOException;
 
 
@@ -99,9 +100,12 @@ public class GoogleDriveImpl extends Storage{
 			.setApplicationName(APPLICATION_NAME)
 			.build();
 	}
-/**
-	public static void main(String[] args) throws IOException {
 
+
+
+	@Override
+	public void preview() {
+		try {
 		Drive service = getDriveService();
 
 		FileList result = service.files().list()
@@ -117,20 +121,13 @@ public class GoogleDriveImpl extends Storage{
 				System.out.printf("%s (%s)\n", file.getName(), file.getId());
 			}
 		}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	
 	}
 
-**/
-	@Override
-	public void create() {
-		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public void delete() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void preview(java.io.File arg0) {
@@ -139,7 +136,31 @@ public class GoogleDriveImpl extends Storage{
 	}
 
 	@Override
-	public void transfer(java.io.File arg0) {
+	public void create(String path, int maxFolders) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void delete(String path) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void transfer(String location, String destination, String file) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void preview(java.io.File f, String s) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void preview(java.io.File f, boolean directoriesOnly) {
 		// TODO Auto-generated method stub
 		
 	}
