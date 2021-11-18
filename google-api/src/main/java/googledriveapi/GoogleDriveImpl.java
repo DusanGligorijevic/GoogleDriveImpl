@@ -1,5 +1,6 @@
 package googledriveapi;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 
@@ -7,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.api.client.auth.oauth2.Credential;
@@ -15,6 +17,7 @@ import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.FileContent;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
@@ -104,13 +107,6 @@ public class GoogleDriveImpl extends Storage{
 	}
 
 
-
-	@Override
-	public void preview() {
-		
-	
-	}
-
 	@Override
 	public void previewAll(String path) {
 		try {
@@ -126,6 +122,7 @@ public class GoogleDriveImpl extends Storage{
 			} else {
 				System.out.println("Files:");
 				for (File file : files) {
+					
 					System.out.printf("%s (%s)\n", file.getName(), file.getId());
 				}
 			}
@@ -137,20 +134,27 @@ public class GoogleDriveImpl extends Storage{
 
 	@Override
 	public void createFiles(String path, String name, int maxFolders) {
+		for(int i=0; i<maxFolders;i++) {
+		path = "1a0b1RkeQnxh5tL9wA7VGfI7eHCZd2olR";
 		File fileMetadata = new File();
 		fileMetadata.setName(name);
-		fileMetadata.setMimeType("application/vnd.google-apps.folder");
+		fileMetadata.setParents(Collections.singletonList(path));
+		java.io.File filePath = new java.io.File(name);
+		FileContent mediaContent = new FileContent("file"+i, filePath);
+		File file;
 		try {
-			File file = getDriveService().files().create(fileMetadata)
-				    .setFields("id")
-				    .execute();
-				System.out.println("Folder ID: " + file.getId());
-		} catch (Exception e) {
+			file = getDriveService().files().create(fileMetadata, mediaContent)
+			    .setFields("id, parents")
+			    .execute();
+			System.out.println("File ID: " + file.getId());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
 		}
 		
 	}
-
+	
 	@Override
 	public void delete(String path) {
 		try {
@@ -163,12 +167,12 @@ public class GoogleDriveImpl extends Storage{
 	}
 
 	@Override
-	public void transfer(String location, String destination, String DriveFile) {
+	public void transfer(String fileId, String folderId, String DriveFile) {
 		//String fileId = "1sTWaJ_j7PkjzaBWtNc3IzovK5hQf21FbOw9yLeeLPNQ";
 		//String folderId = "0BwwA4oUTeiV1TGRPeTVjaWRDY1E";
 		// Retrieve the existing parents to remove
 		try {
-			File file = getDriveService().files().get(DriveFile)
+			File file = getDriveService().files().get(fileId)
 				    .setFields("parents")
 				    .execute();
 				StringBuilder previousParents = new StringBuilder();
@@ -177,8 +181,8 @@ public class GoogleDriveImpl extends Storage{
 				  previousParents.append(',');
 				}
 				// Move the file to the new folder
-				file = getDriveService().files().update(DriveFile, null)
-				    .setAddParents(destination)
+				file = getDriveService().files().update(fileId, null)
+				    .setAddParents(folderId)
 				    .setRemoveParents(previousParents.toString())
 				    .setFields("id, parents")
 				    .execute();
@@ -191,7 +195,26 @@ public class GoogleDriveImpl extends Storage{
 
 	@Override
 	public void previewExt(String f, String s) {
-		// TODO Auto-generated method stub
+		try {
+			Drive service = getDriveService();
+
+			FileList result = service.files().list()
+				.setPageSize(10)
+				.setFields("nextPageToken, files(id, name)")
+				.execute();
+			List<File> files = result.getFiles();
+			if (files == null || files.isEmpty()) {
+				System.out.println("No files found.");
+			} else {
+				System.out.println("Files:");
+				for (File file : files) {
+					if(file.getName().toString().contains(s))
+					System.out.printf("%s (%s)\n", file.getName(), file.getId());
+				}
+			}
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
 		
 	}
 
@@ -226,21 +249,37 @@ public class GoogleDriveImpl extends Storage{
 
 	@Override
 	public void download(String file) {
+		java.io.File f = new java.io.File("C:\\Users\\38160\\git\\GoogleDriveImpl\\google-api\\down\\b");
+		FileOutputStream in = null;
 		try {
-			Drive service = getDriveService();
-			OutputStream out=new ByteArrayOutputStream();
+		    in = new FileOutputStream(f); 
+		    
+		    ByteArrayOutputStream out = new ByteArrayOutputStream();
+		    Drive service = getDriveService();
 			service.files().get(file).executeMediaAndDownloadTo(out);;
-			
-			
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-		
+		    // Put data in your out
+		    out.writeTo(in);
+		} catch(IOException ioe) {
+		    // Handle exception here
+		    ioe.printStackTrace();
+		} finally {
+		   // out.close();
+		}
 	}
 
 	@Override
 	public void createFolders(String path,String name, String number) {
-		// TODO Auto-generated method stub
+		File fileMetadata = new File();
+		fileMetadata.setName(name);
+		fileMetadata.setMimeType("application/vnd.google-apps.folder");
+		try {
+			File file = getDriveService().files().create(fileMetadata)
+				    .setFields("id")
+				    .execute();
+				System.out.println("Folder ID: " + file.getId());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 }
