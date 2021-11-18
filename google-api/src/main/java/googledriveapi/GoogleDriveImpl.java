@@ -1,9 +1,11 @@
 package googledriveapi;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -223,8 +225,16 @@ public class GoogleDriveImpl extends Storage{
 	}
 
 	@Override
-	public void download(String path) {
-		// TODO Auto-generated method stub
+	public void download(String file) {
+		try {
+			Drive service = getDriveService();
+			OutputStream out=new ByteArrayOutputStream();
+			service.files().get(file).executeMediaAndDownloadTo(out);;
+			
+			
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
 		
 	}
 
