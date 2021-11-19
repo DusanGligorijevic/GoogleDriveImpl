@@ -135,7 +135,7 @@ public class GoogleDriveImpl extends Storage{
 	@Override
 	public void createFiles(String path, String name, int maxFolders) {
 		for(int i=0; i<maxFolders;i++) {
-		path = "1a0b1RkeQnxh5tL9wA7VGfI7eHCZd2olR";
+	//	path = "1a0b1RkeQnxh5tL9wA7VGfI7eHCZd2olR";
 		File fileMetadata = new File();
 		fileMetadata.setName(name);
 		fileMetadata.setParents(Collections.singletonList(path));
@@ -202,6 +202,7 @@ public class GoogleDriveImpl extends Storage{
 				.setPageSize(10)
 				.setFields("nextPageToken, files(id, name)")
 				.execute();
+			//FileList result = service.files().get(f)
 			List<File> files = result.getFiles();
 			if (files == null || files.isEmpty()) {
 				System.out.println("No files found.");
@@ -226,7 +227,9 @@ public class GoogleDriveImpl extends Storage{
 				.setPageSize(10)
 				.setFields("nextPageToken, files(id, name)")
 				.execute();
-			List<File> files = result.getFiles();
+			File fl=service.files().get(path).execute();
+			
+			List<File> files = fl;
 			if (files == null || files.isEmpty()) {
 				System.out.println("No files found.");
 			} else {
@@ -284,8 +287,95 @@ public class GoogleDriveImpl extends Storage{
 	}
 
 	@Override
+<<<<<<< Upstream, based on origin/master
 	public void initialise(User user, String storagePath) {
 		// TODO Auto-generated method stub
 		
+=======
+	public void previewSorted(String path) {
+		try {
+			Drive service = getDriveService();
+
+			FileList result = service.files().list()
+				.setPageSize(10)
+				.setFields("nextPageToken, files(id, name)")
+				.execute();
+			List<File> files = result.getFiles();
+			if (files == null || files.isEmpty()) {
+				System.out.println("No files found.");
+			} else {
+				System.out.println("Files:");
+				for (File file : files) {
+					
+					System.out.printf("%s (%s)\n", file.getName(), file.getId());
+				}
+			}
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		
+	}
+
+	@Override
+	public void prevName(String path, String name) {
+		try {
+			Drive service = getDriveService();
+
+			FileList result = service.files().list()
+				.setPageSize(10)
+				.setFields("nextPageToken, files(id, name)")
+				.execute();
+			//FileList result = service.files().get(f)
+			int c=0;
+			List<File> files = result.getFiles();
+			Collections.sort(files);
+			
+			if (files == null || files.isEmpty()) {
+				System.out.println("No files found.");
+			} else {
+				System.out.println("Files:");
+				for (File file : files) {
+					if(file.getName().contentEquals(name))
+					System.out.printf("%s (%s)\n", file.getName(), file.getId());
+					c++;
+				}
+				if(c==0) {
+					System.out.print("Fajl sa tim imenom ne postoji!");
+				}
+			}
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		
+	}
+
+	@Override
+	public void initialise(User user, String storagePath) {
+		if(storagePath.contentEquals("https://drive.google.com/drive/u/2/my-drive")) {
+		System.out.println("Korisnik" + user.getUsername() + "  pokusava da kreira skladiste...");
+    	int flag=0;
+    	if(user.getPrivileges().get(Permissions.create)) {
+    		 flag++; 
+    	}
+    	if(flag>0) {
+    		File fileMetadata = new File();
+			fileMetadata.setName("Storage");
+			fileMetadata.setMimeType("application/vnd.google-apps.folder");
+			try {
+			File file = getDriveService().files().create(fileMetadata)
+				    	.setFields("id")
+				    	.execute();
+					System.out.println("Skladiste kreirano!");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		
+    	}else {
+    		System.out.print("Korisnik nema privilegije za kreiranje skladista!");
+    	}
+		}else {
+		System.out.print("Pogresan URL!");
+		}
+>>>>>>> f8b330d 7777
 	}
 }
