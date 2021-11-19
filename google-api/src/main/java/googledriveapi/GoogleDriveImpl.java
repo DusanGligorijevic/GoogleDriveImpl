@@ -282,4 +282,10 @@ public class GoogleDriveImpl extends Storage{
 		}
 		
 	}
+
+	@Override
+	public void initialise(User user, String storagePath) {
+		// TODO Auto-generated method stub
+		
+	}
 }
